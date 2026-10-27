@@ -1,0 +1,9 @@
+.serverless/
+__pycache__/
+*.pyc
+*.bak
+.env
+.env.*
+.venv/
+node_modules/
+cv_prueba.pdf
