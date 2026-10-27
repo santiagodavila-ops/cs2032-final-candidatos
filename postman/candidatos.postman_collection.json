@@ -1,0 +1,273 @@
+{
+  "info": {
+    "name": "CRM - Candidatos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Ejecutar en orden. Configurar email y password. En Subir PDF, seleccionar un archivo PDF."
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://4kl8vspasb.execute-api.us-east-1.amazonaws.com/dev"
+    },
+    {
+      "key": "usuarios_url",
+      "value": "https://pglyu1afmg.execute-api.us-east-1.amazonaws.com/dev"
+    },
+    {
+      "key": "tenant_id",
+      "value": "tenant_1"
+    },
+    {
+      "key": "email",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "token",
+      "value": ""
+    },
+    {
+      "key": "candidato_id",
+      "value": ""
+    },
+    {
+      "key": "url_subida",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "01 - Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{usuarios_url}}/usuarios/login",
+        "auth": {
+          "type": "noauth"
+        },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"tenant_id\": \"{{tenant_id}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code >= 200 && pm.response.code < 300) {",
+              "  const datos = pm.response.json();",
+              "  pm.collectionVariables.set('token', datos.token);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 - Crear candidato",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/candidatos",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"nombre\": \"Prueba Postman\",\n  \"email\": \"prueba.postman@example.com\",\n  \"telefono\": \"999111222\",\n  \"profesion\": \"Analista de datos\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code >= 200 && pm.response.code < 300) {",
+              "  const datos = pm.response.json();",
+              "  pm.collectionVariables.set('candidato_id', datos.candidato.candidato_id);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Listar candidatos",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/candidatos"
+      }
+    },
+    {
+      "name": "04 - Buscar candidato",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/candidatos/{{candidato_id}}"
+      }
+    },
+    {
+      "name": "05 - Modificar candidato",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/candidatos/{{candidato_id}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"telefono\": \"900111222\",\n  \"profesion\": \"Cientifico de datos\"\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "06 - Solicitar subida de CV",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/candidatos/{{candidato_id}}/cv-url",
+        "body": {
+          "mode": "raw",
+          "raw": "{}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "if (pm.response.code >= 200 && pm.response.code < 300) {",
+              "  const datos = pm.response.json();",
+              "  pm.collectionVariables.set('url_subida', datos.url_subida);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 - Subir PDF (seleccionar archivo)",
+      "request": {
+        "method": "PUT",
+        "auth": {
+          "type": "noauth"
+        },
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/pdf"
+          }
+        ],
+        "url": "{{url_subida}}",
+        "body": {
+          "mode": "file",
+          "file": {
+            "src": ""
+          }
+        }
+      }
+    },
+    {
+      "name": "08 - Confirmar CV",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/candidatos/{{candidato_id}}/cv-url",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"confirmar\": true\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "09 - Consultar candidato con CV",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/candidatos/{{candidato_id}}"
+      }
+    },
+    {
+      "name": "10 - Eliminar candidato de prueba",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": "{{base_url}}/candidatos/{{candidato_id}}"
+      }
+    },
+    {
+      "name": "11 - Comprobar rechazo sin token",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{base_url}}/candidatos",
+        "auth": {
+          "type": "noauth"
+        }
+      }
+    }
+  ]
+}
